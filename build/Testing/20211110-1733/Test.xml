@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Site BuildName="Linux-x86_64-linux-gnu-g++-9"
+	BuildStamp="20211110-1733-Experimental"
+	Name="kelaves-Nitro-AN515-52"
+	Generator="ctest-3.16.3"
+	CompilerName="/bin/x86_64-linux-gnu-g++-9"
+	CompilerVersion="9.3.0"
+	OSName="Linux"
+	Hostname="kelaves-Nitro-AN515-52"
+	OSRelease="5.11.0-38-generic"
+	OSVersion="#42~20.04.1-Ubuntu SMP Tue Sep 28 20:41:07 UTC 2021"
+	OSPlatform="x86_64"
+	Is64Bits="1"
+	VendorString="GenuineIntel"
+	VendorID="Intel Corporation"
+	FamilyID="6"
+	ModelID="158"
+	ProcessorCacheSize="8192"
+	NumberOfLogicalCPU="8"
+	NumberOfPhysicalCPU="4"
+	TotalVirtualMemory="2047"
+	TotalPhysicalMemory="7799"
+	LogicalProcessorsPerPhysical="2"
+	ProcessorClockFrequency="2300"
+	>
+	<Testing>
+		<StartDateTime>Nov 10 14:33 -03</StartDateTime>
+		<StartTestTime>1636565606</StartTestTime>
+		<TestList/>
+		<EndDateTime>Nov 10 14:33 -03</EndDateTime>
+		<EndTestTime>1636565606</EndTestTime>
+		<ElapsedMinutes>0</ElapsedMinutes>
+	</Testing>
+</Site>

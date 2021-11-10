@@ -1,0 +1,32 @@
+[
+{
+  "directory": "/home/kelaves/Documents/Programs/icmp/build",
+  "command": "/bin/x86_64-linux-gnu-g++-9    -g   -o CMakeFiles/icmp.dir/echo.cpp.o -c /home/kelaves/Documents/Programs/icmp/echo.cpp",
+  "file": "/home/kelaves/Documents/Programs/icmp/echo.cpp"
+},
+{
+  "directory": "/home/kelaves/Documents/Programs/icmp/build",
+  "command": "/bin/x86_64-linux-gnu-g++-9    -g   -o CMakeFiles/icmp.dir/host_serv.cpp.o -c /home/kelaves/Documents/Programs/icmp/host_serv.cpp",
+  "file": "/home/kelaves/Documents/Programs/icmp/host_serv.cpp"
+},
+{
+  "directory": "/home/kelaves/Documents/Programs/icmp/build",
+  "command": "/bin/x86_64-linux-gnu-g++-9    -g   -o CMakeFiles/icmp.dir/proc.cpp.o -c /home/kelaves/Documents/Programs/icmp/proc.cpp",
+  "file": "/home/kelaves/Documents/Programs/icmp/proc.cpp"
+},
+{
+  "directory": "/home/kelaves/Documents/Programs/icmp/build",
+  "command": "/bin/x86_64-linux-gnu-g++-9    -g   -o CMakeFiles/icmp.dir/readloop.cpp.o -c /home/kelaves/Documents/Programs/icmp/readloop.cpp",
+  "file": "/home/kelaves/Documents/Programs/icmp/readloop.cpp"
+},
+{
+  "directory": "/home/kelaves/Documents/Programs/icmp/build",
+  "command": "/bin/x86_64-linux-gnu-g++-9    -g   -o CMakeFiles/icmp.dir/send.cpp.o -c /home/kelaves/Documents/Programs/icmp/send.cpp",
+  "file": "/home/kelaves/Documents/Programs/icmp/send.cpp"
+},
+{
+  "directory": "/home/kelaves/Documents/Programs/icmp/build",
+  "command": "/bin/x86_64-linux-gnu-g++-9    -g   -o CMakeFiles/icmp.dir/tv_sub.cpp.o -c /home/kelaves/Documents/Programs/icmp/tv_sub.cpp",
+  "file": "/home/kelaves/Documents/Programs/icmp/tv_sub.cpp"
+}
+]
