@@ -1,5 +1,7 @@
 #include "icmp.h"
 
+
+// module to interact with client program
 int ICMP::echo(char *host){
     addrinfo *ai;
     pid = getpid() & 0xffff;

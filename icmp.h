@@ -23,14 +23,14 @@ const int BUFFSIZE = 1500;
 class ICMP{
     public:
         int echo(char *host);
-        void send();
-    private:
         ICMP();
+    private:
+        void send();
         void proc(char *buf, ssize_t len, msghdr *msg, timeval *tvrecv);
         void readloop();
         void tv_sub(timeval *out, timeval *in);
         addrinfo *host_serv(const char *hostname, const char *service, int family, int socktype);
-        int chekcsum();
+        int checksum(uint16_t *addr, int len);
         struct header{
             unsigned short type;
             unsigned short code;

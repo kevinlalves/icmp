@@ -8,7 +8,7 @@ int main(int argc, char **argv){
     ICMP pkt;
 
     if(optind != argc-1)
-        //error
+        exit(1);//error
     host=argv[optind];
     pkt.echo(host);
     return 0;
