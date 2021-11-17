@@ -17,6 +17,14 @@
 #include <stdlib.h>
 #include <iostream>
 #include <iomanip>
+#include <chrono>
+#include <ctime>
+#define Clock std::chrono::system_clock
+#define Time std::chrono::time_point<Clock>
+
+//only for debug purposes
+#define debug(x) std::cout << x << std::endl; 
+//
 
 const int BUFFSIZE = 1500;
 
@@ -26,29 +34,27 @@ class ICMP{
         ICMP();
     private:
         void send();
-        void proc(char *buf, ssize_t len, msghdr *msg, timeval *tvrecv);
+        void proc(char *buf, ssize_t len, Time *tvrecv);
         void readloop();
-        void tv_sub(timeval *out, timeval *in);
         addrinfo *host_serv(const char *hostname, const char *service, int family, int socktype);
         int checksum(uint16_t *addr, int len);
         struct header{
-            unsigned short type;
-            unsigned short code;
-            unsigned short id;
-            unsigned short seq;
-            unsigned short cksum;
-            char *data;
+            uint8_t type;
+            uint8_t code;
+            uint16_t cksum;
+            uint16_t id;
+            uint16_t seq;
+            Time data;
         } hdr;
         int datalen;
         char sendbuf[BUFFSIZE];
         char *host;
-        pid_t pid;
+        pid_t child_pid, pid;
         int sockfd;
-        int verbose;
         sockaddr *sasend;
-        sockaddr *sarecv;
         socklen_t salen;
         int protocol;
+        std::string canonname;
 };
 
 

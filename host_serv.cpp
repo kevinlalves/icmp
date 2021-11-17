@@ -9,5 +9,5 @@ addrinfo *ICMP::host_serv(const char *hostname, const char *service, int family,
     hints.ai_socktype = socktype;
     if((n = getaddrinfo(hostname, service, &hints, &res)) != 0)
         return NULL;
-    return res;
+    return res; 
 }

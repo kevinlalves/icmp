@@ -23,10 +23,5 @@
   "directory": "/home/kelaves/Documents/Programs/icmp/build",
   "command": "/bin/x86_64-linux-gnu-g++-9    -g   -o CMakeFiles/icmp.dir/send.cpp.o -c /home/kelaves/Documents/Programs/icmp/send.cpp",
   "file": "/home/kelaves/Documents/Programs/icmp/send.cpp"
-},
-{
-  "directory": "/home/kelaves/Documents/Programs/icmp/build",
-  "command": "/bin/x86_64-linux-gnu-g++-9    -g   -o CMakeFiles/icmp.dir/tv_sub.cpp.o -c /home/kelaves/Documents/Programs/icmp/tv_sub.cpp",
-  "file": "/home/kelaves/Documents/Programs/icmp/tv_sub.cpp"
 }
 ]

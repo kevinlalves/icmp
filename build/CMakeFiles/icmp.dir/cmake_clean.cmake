@@ -4,7 +4,6 @@ file(REMOVE_RECURSE
   "CMakeFiles/icmp.dir/proc.cpp.o"
   "CMakeFiles/icmp.dir/readloop.cpp.o"
   "CMakeFiles/icmp.dir/send.cpp.o"
-  "CMakeFiles/icmp.dir/tv_sub.cpp.o"
   "libicmp.a"
   "libicmp.pdb"
 )

@@ -4,7 +4,7 @@ project(icmp VERSION 0.1.0)
 include(CTest)
 enable_testing()
 
-add_library(icmp echo.cpp host_serv.cpp proc.cpp readloop.cpp send.cpp tv_sub.cpp)
+add_library(icmp echo.cpp host_serv.cpp proc.cpp readloop.cpp send.cpp)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

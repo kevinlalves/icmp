@@ -1,8 +1,5 @@
 #include "icmp.h"
-#include <string.h>
-#include <sys/time.h>
-#include <sys/socket.h>
-#include <sys/types.h>
+
 
 int ICMP::checksum(uint16_t *addr, int len){
     uint32_t sum = 0;
@@ -25,6 +22,7 @@ int ICMP::checksum(uint16_t *addr, int len){
 }
 
 void ICMP::send(){
+
     int len;
     while(1){
         hdr.type = ICMP_ECHO;
@@ -32,13 +30,12 @@ void ICMP::send(){
         hdr.id = pid;
         hdr.seq++;
 
-        memset(hdr.data, 0xa5, datalen);
-        gettimeofday((struct timeval *)hdr.data, NULL);
-
         len = 8 + datalen;
+        hdr.cksum = 0;
         hdr.cksum = checksum((uint16_t *)&hdr, len);
 
-        sendto(sockfd, sendbuf, len, 0, sasend, salen);
+        hdr.data = Clock::now();
+        sendto(sockfd, &hdr, len, 0, sasend, salen);
         sleep(1);
     }
 }

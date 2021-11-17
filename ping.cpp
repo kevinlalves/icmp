@@ -1,15 +1,16 @@
-#include "icmp.h"
+#include "../icmp/icmp.h"
 
 using namespace std;
 
 int main(int argc, char **argv){
-    int c;
     char *host;
     ICMP pkt;
 
-    if(optind != argc-1)
-        exit(1);//error
-    host=argv[optind];
+    if(argc != 2){
+        cout << "Usage: ping <hostname>\n";
+        exit(1);
+    } //error: wrong hostname info
+    host=argv[1];
     pkt.echo(host);
     return 0;
 }

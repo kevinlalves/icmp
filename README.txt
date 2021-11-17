@@ -1,0 +1,1 @@
+The program uses raw sockets, so remember to run the program ping with superuser privillege, 

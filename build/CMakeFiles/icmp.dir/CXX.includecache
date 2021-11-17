@@ -10,10 +10,6 @@
 icmp.h
 /home/kelaves/Documents/Programs/icmp/icmp.h
 
-/home/kelaves/Documents/Programs/icmp/host_serv.cpp
-icmp.h
-/home/kelaves/Documents/Programs/icmp/icmp.h
-
 /home/kelaves/Documents/Programs/icmp/icmp.h
 netinet/in_systm.h
 -
@@ -43,28 +39,8 @@ iostream
 -
 iomanip
 -
-
-/home/kelaves/Documents/Programs/icmp/proc.cpp
-icmp.h
-/home/kelaves/Documents/Programs/icmp/icmp.h
-
-/home/kelaves/Documents/Programs/icmp/readloop.cpp
-icmp.h
-/home/kelaves/Documents/Programs/icmp/icmp.h
-
-/home/kelaves/Documents/Programs/icmp/send.cpp
-icmp.h
-/home/kelaves/Documents/Programs/icmp/icmp.h
-string.h
+chrono
 -
-sys/time.h
+ctime
 -
-sys/socket.h
--
-sys/types.h
--
-
-/home/kelaves/Documents/Programs/icmp/tv_sub.cpp
-icmp.h
-/home/kelaves/Documents/Programs/icmp/icmp.h
 
