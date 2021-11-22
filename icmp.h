@@ -15,24 +15,29 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <iomanip>
-#include <chrono>
 #include <ctime>
 #include <vector>
+#include <iostream>
 
 //only for debug purposes
 #define debug(x) std::cout << x << std::endl; 
 //
 
-const int MAXDATASIZE = 65507;
+const int MAXDATASIZE = 65535;
 const int header_length = 8;
 
 class ICMP{
     public:
         std::vector<uint8_t> encode();
-        int decode(std::vector<uint8_t> &_data);
+        int decode(std::vector<uint8_t> &byte_array);
         ICMP();
+        ICMP(std::vector<uint8_t> &_data);
         ICMP(uint8_t _type, uint8_t _code, uint16_t _id, uint16_t _seq);
         ICMP(uint8_t _type, uint8_t _code, uint16_t _id, uint16_t _seq, std::vector<uint8_t> &_data);
+        void increment_seq();
+        bool check_id(pid_t pid);
+        void info();
+        void payload(long long time);
     private:
         uint8_t type;
         uint8_t code;
