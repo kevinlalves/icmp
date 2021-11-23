@@ -37,7 +37,8 @@ class ICMP{
         void increment_seq();
         bool check_id(pid_t pid);
         void info();
-        void payload(long long time);
+        void set_payload(int64_t time);
+        std::vector<uint8_t> get_payload();
     private:
         uint8_t type;
         uint8_t code;
@@ -45,7 +46,7 @@ class ICMP{
         uint16_t id;
         uint16_t seq;
         std::vector<uint8_t> data;
-        uint16_t checksum(int len);
+        void checksum();
 };
 
 

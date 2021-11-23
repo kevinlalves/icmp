@@ -62,13 +62,13 @@ int echo(char *host){
     salen = ai->ai_addrlen;
     canonname = ai->ai_canonname;
 
-    int sockfd = socket(sa->sa_family, SOCK_RAW, IPPROTO_ICMP);
+    sockfd = socket(sa->sa_family, SOCK_RAW, IPPROTO_ICMP);
     setuid(getuid());
 
     int size = 60 * 1024;
     setsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, &size, sizeof(size));
 
-    if((pid = fork()))
+    if(pid = fork())
         readloop();
     else     
         send();
@@ -85,36 +85,12 @@ void send(){
         pkt.increment_seq();
         tval = Clock::now();
         time_epoch = tval.time_since_epoch().count();
-        pkt.payload(time_epoch);
+        pkt.set_payload(time_epoch);
         byte_array = pkt.encode();
         sendto(sockfd, byte_array.data(), byte_array.size(), 0, sa, salen);
         sleep(1);
     }
 }
-
-void processing(char *buf, ssize_t len, Time tvrecv){
-    int icmplen, lenhdr_ip;
-    ICMP pkt;
-    double rtt;
-    auto t_epoch_recv = tvrecv.time_since_epoch();
-    auto t_recv = chrono::duration_cast<chrono::milliseconds>(t_epoch_recv).count();
-    ip *ip;
-    ip = (struct ip*)buf;
-    lenhdr_ip = ip->ip_hl << 2;
-    if(ip->ip_p != IPPROTO_ICMP)
-        return;
-    if((icmplen = len-lenhdr_ip) < 8)
-        return; 
-
-    std::vector<uint8_t> byte_array((uint8_t*)(buf+lenhdr_ip), (uint8_t*)(buf+len));
-    pkt.decode(byte_array);
-    if(pkt.check_id(pid)){
-        std::cout << len-lenhdr_ip << " bytes from " << canonname << ": "; 
-        pkt.info();
-        cout << ", ttl=" << int(ip->ip_ttl) << endl;
-    }
-}
-
 
 void readloop(){
     char recvbuf[BUFFSIZE];
@@ -134,6 +110,35 @@ void readloop(){
         processing(recvbuf, n, tvrecv);
     }
 
+}
+
+
+
+
+void processing(char *buf, ssize_t len, Time tvrecv){
+    int icmplen, lenhdr_ip;
+    ICMP pkt;
+    double rtt;
+    int64_t t_epoch_recv = tvrecv.time_since_epoch().count();
+    int64_t t_epoch_send = 0;
+    ip *ip;
+    ip = (struct ip*)buf;
+    lenhdr_ip = ip->ip_hl << 2;
+    if(ip->ip_p != IPPROTO_ICMP)
+        return;
+    std::vector<uint8_t> byte_array((uint8_t*)(buf+lenhdr_ip), (uint8_t*)(buf+len));
+    if(pkt.decode(byte_array) != 0)
+        return;
+    if(pkt.check_id(pid)){
+        auto data = pkt.get_payload();
+        int i = 0;
+        for (auto it = data.rbegin(); it != data.rend(); it++, i++)
+            t_epoch_send += *it<<(8*i);
+        rtt = (t_epoch_recv-t_epoch_send)/1e6;
+        std::cout << len-lenhdr_ip << " bytes from " << canonname << ": "; 
+        pkt.info();
+        cout << ", ttl=" << int(ip->ip_ttl) << ", time=" << rtt  << " ms" << endl;
+    }
 }
 
 
