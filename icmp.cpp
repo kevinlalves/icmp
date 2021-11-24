@@ -59,9 +59,9 @@ std::vector<uint8_t> ICMP::encode(){
     std::vector<uint8_t> byte_array;
     byte_array.push_back(type);
     byte_array.push_back(code);
-    byte_array.insert(byte_array.end(),(uint8_t*)&cksum, (uint8_t*)&cksum+1);
-    byte_array.insert(byte_array.end(),(uint8_t*)&id, (uint8_t*)&id+1);
-    byte_array.insert(byte_array.end(),(uint8_t*)&seq, (uint8_t*)&seq+1);
+    byte_array.insert(byte_array.end(),(uint8_t*)&cksum, ((uint8_t*)&cksum)+2);
+    byte_array.insert(byte_array.end(),(uint8_t*)&id, ((uint8_t*)&id)+2);
+    byte_array.insert(byte_array.end(),(uint8_t*)&seq, ((uint8_t*)&seq)+2);
     byte_array.insert(byte_array.end(), data.begin(), data.end());
     return byte_array;
 }
@@ -74,12 +74,12 @@ int ICMP::decode(std::vector<uint8_t> &byte_array){
     auto it = byte_array.begin();
     type = *it++;
     code = *it++;
-    cksum = *it++ << 8;
-    cksum += *it++;
-    id = *it++ << 8;
-    id += *it++;
-    seq = *it++ << 8;
+    cksum = *it++;
+    cksum += *it++ << 8;
+    id = *it++;
+    id += *it++ << 8;
     seq = *it++;
+    seq += *it++ << 8;
     data.insert(data.begin(),it,byte_array.end());
     return 0;
 }
@@ -93,8 +93,8 @@ bool ICMP::check_id(pid_t pid){
     return id == pid;
 }
 
-void ICMP::info(){ 
-    std::cout << ": seq=" << seq << ", id=" << id;
+void ICMP::to_string(){ 
+    std::cout << "seq=" << seq << ", id=" << id;
 }
 
 void ICMP::set_payload(int64_t time){
@@ -102,8 +102,4 @@ void ICMP::set_payload(int64_t time){
     std::vector<uint8_t> byte_data((uint8_t*)&time,(uint8_t*)(&time)+len);
     data = byte_data;
     checksum();  
-}
-
-std::vector<uint8_t> ICMP::get_payload(){
-    return data;
 }

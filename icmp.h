@@ -36,9 +36,8 @@ class ICMP{
         ICMP(uint8_t _type, uint8_t _code, uint16_t _id, uint16_t _seq, std::vector<uint8_t> &_data);
         void increment_seq();
         bool check_id(pid_t pid);
-        void info();
+        void to_string();
         void set_payload(int64_t time);
-        std::vector<uint8_t> get_payload();
     private:
         uint8_t type;
         uint8_t code;

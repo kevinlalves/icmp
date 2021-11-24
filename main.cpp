@@ -68,6 +68,7 @@ int echo(char *host){
     int size = 60 * 1024;
     setsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, &size, sizeof(size));
 
+
     if(pid = fork())
         readloop();
     else     
@@ -95,7 +96,6 @@ void send(){
 void readloop(){
     char recvbuf[BUFFSIZE];
     Time tvrecv;
-    
     ssize_t n;
     while(1){
         n = recvfrom(sockfd, recvbuf, BUFFSIZE, 0, sa, &salen);
@@ -116,27 +116,30 @@ void readloop(){
 
 
 void processing(char *buf, ssize_t len, Time tvrecv){
-    int icmplen, lenhdr_ip;
+    int len_hdr_ip;
     ICMP pkt;
     double rtt;
     int64_t t_epoch_recv = tvrecv.time_since_epoch().count();
-    int64_t t_epoch_send = 0;
+    int64_t t_epoch_send = 0, term;
     ip *ip;
     ip = (struct ip*)buf;
-    lenhdr_ip = ip->ip_hl << 2;
+    len_hdr_ip = ip->ip_hl << 2;
     if(ip->ip_p != IPPROTO_ICMP)
         return;
-    std::vector<uint8_t> byte_array((uint8_t*)(buf+lenhdr_ip), (uint8_t*)(buf+len));
+    std::vector<uint8_t> byte_array((uint8_t*)(buf+len_hdr_ip), (uint8_t*)(buf+len));
     if(pkt.decode(byte_array) != 0)
         return;
     if(pkt.check_id(pid)){
-        auto data = pkt.get_payload();
+        std::vector<uint8_t> data((uint8_t*)(buf+len_hdr_ip+8),(uint8_t*)(buf+len));
         int i = 0;
-        for (auto it = data.rbegin(); it != data.rend(); it++, i++)
-            t_epoch_send += *it<<(8*i);
+        for (auto it = data.begin(); it != data.end(); it++, i++){
+            term = *it;
+            t_epoch_send += term<<(8*i);
+        }
         rtt = (t_epoch_recv-t_epoch_send)/1e6;
-        std::cout << len-lenhdr_ip << " bytes from " << canonname << ": "; 
-        pkt.info();
+        std::cout << len-len_hdr_ip << " bytes from " << canonname << ": "; 
+        pkt.to_string();
+        cout << setprecision(4);
         cout << ", ttl=" << int(ip->ip_ttl) << ", time=" << rtt  << " ms" << endl;
     }
 }
