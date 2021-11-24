@@ -15,6 +15,7 @@ void send();
 void processing(char *buf, ssize_t len, Time tvrecv);
 void readloop();
 addrinfo *host_serv(const char *hostname, const char *service, int family, int socktype);
+void sigint_handler(int sig_num);
 
 const int BUFFSIZE = 1500;
 int sockfd;
@@ -22,6 +23,7 @@ sockaddr *sa;
 socklen_t salen;
 pid_t pid;
 string canonname;
+struct sigaction old_action;
 
 int main(int argc, char **argv){
     char *host;
@@ -97,9 +99,13 @@ void send(){
 }
 
 void readloop(){
+    struct sigaction action;
     char recvbuf[BUFFSIZE];
     Time tvrecv;
     ssize_t n;
+    memset(&action, 0, sizeof(action));
+    action.sa_handler = &sigint_handler;
+    sigaction(SIGINT, &action, &old_action);
     while(1){
         n = recvfrom(sockfd, recvbuf, BUFFSIZE, 0, sa, &salen);
         tvrecv = Clock::now();
@@ -147,4 +153,9 @@ void processing(char *buf, ssize_t len, Time tvrecv){
     }
 }
 
-
+void sigint_handler(int sig_num){
+    sigaction(SIGINT, &old_action, NULL);
+    cout << endl << "--- " << canonname << " ping statistics ---" << endl;
+    kill(pid,SIGKILL);
+    kill(0,SIGINT);
+}
