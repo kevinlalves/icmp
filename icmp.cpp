@@ -41,12 +41,15 @@ void ICMP::checksum(){
     cksum = 0;
     auto byte_array = encode();
     uint32_t sum = 0;
-    int i = 1;
-    for (auto it = byte_array.begin(); it != byte_array.end(); it++)
+    int len = byte_array.size();
+    for (auto it = byte_array.begin(); len > 1; it++, len -= 2)
     {
-        sum += *it << (8*i);
-        i = (i+1)%2;
+        sum += *it << 8;
+        it++;
+        sum += *it;
     }
+    if(len > 0)
+        sum += byte_array.back();
     sum = (sum >> 16) + (sum & 0xffff);
     sum += (sum >> 16);
     cksum = ~sum;
@@ -56,12 +59,9 @@ std::vector<uint8_t> ICMP::encode(){
     std::vector<uint8_t> byte_array;
     byte_array.push_back(type);
     byte_array.push_back(code);
-    byte_array.push_back(cksum&0xff00); // first 2 bytes of 4
-    byte_array.push_back(cksum&(0xff)); // last 2 bytes
-    byte_array.push_back(id&0xff00);
-    byte_array.push_back(id&(0xff));
-    byte_array.push_back(seq&0xff00);
-    byte_array.push_back(seq&(0xff));
+    byte_array.insert(byte_array.end(),(uint8_t*)&cksum, (uint8_t*)&cksum+1);
+    byte_array.insert(byte_array.end(),(uint8_t*)&id, (uint8_t*)&id+1);
+    byte_array.insert(byte_array.end(),(uint8_t*)&seq, (uint8_t*)&seq+1);
     byte_array.insert(byte_array.end(), data.begin(), data.end());
     return byte_array;
 }
