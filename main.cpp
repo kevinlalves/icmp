@@ -1,9 +1,12 @@
 #include "icmp.h"
-#include <iostream>
 #include <chrono>
+#include <netdb.h>
+#include <string.h>
+#include <iomanip>
+#include <signal.h>
+#include <netinet/ip.h>
 #define Clock chrono::high_resolution_clock 
 #define Time chrono::time_point<Clock>
-#define Duration chrono::duration<double,milli> 
 
 using namespace std;
 
@@ -139,7 +142,7 @@ void processing(char *buf, ssize_t len, Time tvrecv){
         rtt = (t_epoch_recv-t_epoch_send)/1e6;
         std::cout << len-len_hdr_ip << " bytes from " << canonname << ": "; 
         pkt.to_string();
-        cout << setprecision(4);
+        cout << setprecision(4) << fixed;
         cout << ", ttl=" << int(ip->ip_ttl) << ", time=" << rtt  << " ms" << endl;
     }
 }

@@ -69,7 +69,7 @@ std::vector<uint8_t> ICMP::encode(){
 int ICMP::decode(std::vector<uint8_t> &byte_array){
     if(byte_array.size() < 8)
         return -1; //insufficient data for complete header
-    if(byte_array.size() > MAXDATASIZE)
+    if(byte_array.size() > max_datasize)
         return -2; //exceeded maximum size for a icmp packet 
     auto it = byte_array.begin();
     type = *it++;
