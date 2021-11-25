@@ -1,45 +1,45 @@
 #include "icmp.h"
 
 
-ICMP::ICMP(){
-    type = ICMP_ECHO;
+Icmp::Icmp(){
+    type = kIcmpEcho;
     code = 0;
     id = getpid()&0xffff;
     seq = 0;
-    checksum();
+    Checksum();
 }
 
-ICMP::ICMP(std::vector<uint8_t> &_data){
-    type = ICMP_ECHO;
+Icmp::Icmp(std::vector<uint8_t> &_data){
+    type = kIcmpReply;
     code = 0;
     id = getpid()&0xffff;
     seq = 0;
     data = _data;
-    checksum();
+    Checksum();
 }
 
 
-ICMP::ICMP(uint8_t _type, uint8_t _code, uint16_t _id, uint16_t _seq){
+Icmp::Icmp(uint8_t _type, uint8_t _code, uint16_t _id, uint16_t _seq){
     type = _type;
     code = _code;
     id = _id;
     seq = _seq;
-    checksum();
+    Checksum();
 }
 
 
-ICMP::ICMP(uint8_t _type, uint8_t _code, uint16_t _id, uint16_t _seq, std::vector<uint8_t> &_data){
+Icmp::Icmp(uint8_t _type, uint8_t _code, uint16_t _id, uint16_t _seq, std::vector<uint8_t> &_data){
     type = _type;
     code = _code;
     id = _id;
     seq = _seq;
     data = _data;
-    checksum();
+    Checksum();
 }
 
-void ICMP::checksum(){
+void Icmp::Checksum(){
     cksum = 0;
-    auto byte_array = encode();
+    auto byte_array = Encode();
     uint32_t sum = 0;
     int len = byte_array.size();
     for (auto it = byte_array.begin(); len > 1; it++, len -= 2)
@@ -55,7 +55,7 @@ void ICMP::checksum(){
     cksum = ~sum;
 }
 
-std::vector<uint8_t> ICMP::encode(){
+std::vector<uint8_t> Icmp::Encode(){
     std::vector<uint8_t> byte_array;
     byte_array.push_back(type);
     byte_array.push_back(code);
@@ -66,10 +66,10 @@ std::vector<uint8_t> ICMP::encode(){
     return byte_array;
 }
 
-int ICMP::decode(std::vector<uint8_t> &byte_array){
-    if(byte_array.size() < 8)
+int Icmp::Decode(std::vector<uint8_t> &byte_array){
+    if(byte_array.size() < kHeaderLength)
         return -1; //insufficient data for complete header
-    if(byte_array.size() > max_datasize)
+    if(byte_array.size() > kMaxDatasize)
         return -2; //exceeded maximum size for a icmp packet 
     auto it = byte_array.begin();
     type = *it++;
@@ -84,22 +84,22 @@ int ICMP::decode(std::vector<uint8_t> &byte_array){
     return 0;
 }
 
-void ICMP::increment_seq(){
+void Icmp::IncrementSeq(){
     seq++;
-    checksum();
+    Checksum();
 }
 
-bool ICMP::check_id(pid_t pid){
+bool Icmp::CheckId(pid_t pid){
     return id == pid;
 }
 
-void ICMP::to_string(){ 
+void Icmp::ToString(){ 
     std::cout << "seq=" << seq << ", id=" << id;
 }
 
-void ICMP::set_payload(int64_t time){
+void Icmp::SetPayload(int64_t time){
     int len = sizeof(time);
     std::vector<uint8_t> byte_data((uint8_t*)&time,(uint8_t*)(&time)+len);
     data = byte_data;
-    checksum();  
+    Checksum();  
 }

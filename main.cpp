@@ -1,29 +1,33 @@
 #include "icmp.h"
-#include <chrono>
+
 #include <netdb.h>
-#include <string.h>
-#include <iomanip>
-#include <signal.h>
 #include <netinet/ip.h>
-#define Clock chrono::high_resolution_clock 
-#define Time chrono::time_point<Clock>
+#include <string.h>
+#include <signal.h>
 
-using namespace std;
+#include <chrono>
+#include <iomanip>
 
-int echo(char *host);
-void send();
-void processing(char *buf, ssize_t len, Time tvrecv);
-void readloop();
-addrinfo *host_serv(const char *hostname, const char *service, int family, int socktype);
-void sigint_handler(int sig_num);
+#define Clock std::chrono::high_resolution_clock 
+#define Time std::chrono::time_point<Clock>
 
-const int BUFFSIZE = 1500;
-int sockfd;
-sockaddr *sa;
+using std::cout;
+using std::endl;
+
+int Echo(char *host);
+void Send();
+void Processing(char *buf, ssize_t len, Time tvrecv);
+void ReadLoop();
+addrinfo *HostServ(const char *hostname, const char *service, int family, int socktype);
+void SigintHandler(int sig_num);
+
+const int kBuffSize = 1500;
+int sockfd; //number referencing open socket
+sockaddr *sa; //formated host address
 socklen_t salen;
-pid_t pid;
-string canonname;
-struct sigaction old_action;
+pid_t pid; // id of process(child) sending packets
+std::string canonname; // string name of the host's address
+struct sigaction old_action; // responsible to kill child process
 
 int main(int argc, char **argv){
     char *host;
@@ -33,12 +37,12 @@ int main(int argc, char **argv){
     } 
     //error: wrong hostname info
     host=argv[1];
-    echo(host);
+    Echo(host);
     return 0;
 }
 
 
-addrinfo *host_serv(const char *hostname, const char *service, int family, int socktype){
+addrinfo *HostServ(const char *hostname, const char *service, int family, int socktype){
     int n;
     addrinfo hints, *res;
     memset(&hints, 0, sizeof(addrinfo));
@@ -52,9 +56,9 @@ addrinfo *host_serv(const char *hostname, const char *service, int family, int s
 
 
 // open socket and start communication with host
-int echo(char *host){
+int Echo(char *host){
     addrinfo *ai;
-    ai = host_serv(host, NULL, 0, SOCK_RAW);
+    ai = HostServ(host, NULL, 0, SOCK_RAW);
     if(ai == NULL){ //error: not a valid address info
         std::cout << "Error: Invalid host name\n";
         exit(1);
@@ -75,39 +79,39 @@ int echo(char *host){
 
 
     if(pid = fork())
-        readloop();
+        ReadLoop();
     else     
-        send();
+        Send();
     return 0;
 }
 
-void send(){
-    ICMP pkt;
+void Send(){
+    Icmp packet;
     Time tval;
     std::vector<uint8_t> byte_array;
     int len;
     long time_epoch;
     while(1){
-        pkt.increment_seq();
+        packet.IncrementSeq();
         tval = Clock::now();
         time_epoch = tval.time_since_epoch().count();
-        pkt.set_payload(time_epoch);
-        byte_array = pkt.encode();
+        packet.SetPayload(time_epoch);
+        byte_array = packet.Encode();
         sendto(sockfd, byte_array.data(), byte_array.size(), 0, sa, salen);
         sleep(1);
     }
 }
 
-void readloop(){
+void ReadLoop(){
     struct sigaction action;
-    char recvbuf[BUFFSIZE];
+    char recvbuf[kBuffSize];
     Time tvrecv;
     ssize_t n;
     memset(&action, 0, sizeof(action));
-    action.sa_handler = &sigint_handler;
+    action.sa_handler = &SigintHandler;
     sigaction(SIGINT, &action, &old_action);
     while(1){
-        n = recvfrom(sockfd, recvbuf, BUFFSIZE, 0, sa, &salen);
+        n = recvfrom(sockfd, recvbuf, kBuffSize, 0, sa, &salen);
         tvrecv = Clock::now();
         if(n < 0){
             if(errno == EINTR)
@@ -116,7 +120,7 @@ void readloop(){
                 perror("recvmsg error");
                 exit(1);
         }
-        processing(recvbuf, n, tvrecv);
+        Processing(recvbuf, n, tvrecv);
     }
 
 }
@@ -124,9 +128,9 @@ void readloop(){
 
 
 
-void processing(char *buf, ssize_t len, Time tvrecv){
+void Processing(char *buf, ssize_t len, Time tvrecv){
     int len_hdr_ip;
-    ICMP pkt;
+    Icmp packet;
     double rtt;
     int64_t t_epoch_recv = tvrecv.time_since_epoch().count();
     int64_t t_epoch_send = 0, term;
@@ -136,9 +140,9 @@ void processing(char *buf, ssize_t len, Time tvrecv){
     if(ip->ip_p != IPPROTO_ICMP)
         return;
     std::vector<uint8_t> byte_array((uint8_t*)(buf+len_hdr_ip), (uint8_t*)(buf+len));
-    if(pkt.decode(byte_array) != 0)
+    if(packet.Decode(byte_array) != 0)
         return;
-    if(pkt.check_id(pid)){
+    if(packet.CheckId(pid)){
         std::vector<uint8_t> data((uint8_t*)(buf+len_hdr_ip+8),(uint8_t*)(buf+len));
         int i = 0;
         for (auto it = data.begin(); it != data.end(); it++, i++){
@@ -146,14 +150,14 @@ void processing(char *buf, ssize_t len, Time tvrecv){
             t_epoch_send += term<<(8*i);
         }
         rtt = (t_epoch_recv-t_epoch_send)/1e6;
-        std::cout << len-len_hdr_ip << " bytes from " << canonname << ": "; 
-        pkt.to_string();
-        cout << setprecision(4) << fixed;
+        cout << len-len_hdr_ip << " bytes from " << canonname << ": "; 
+        packet.ToString();
+        cout << std::setprecision(4) << std::fixed;
         cout << ", ttl=" << int(ip->ip_ttl) << ", time=" << rtt  << " ms" << endl;
     }
 }
 
-void sigint_handler(int sig_num){
+void SigintHandler(int sig_num){
     sigaction(SIGINT, &old_action, NULL);
     cout << endl << "--- " << canonname << " ping statistics ---" << endl;
     kill(pid,SIGKILL);
