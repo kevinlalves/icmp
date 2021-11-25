@@ -25,6 +25,7 @@ class Icmp{
     bool CheckId(pid_t pid);
     void ToString();
     void SetPayload(int64_t time);
+    uint16_t GetSeq();
   private:
     uint8_t type_;
     uint8_t code_;

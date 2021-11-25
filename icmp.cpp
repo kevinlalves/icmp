@@ -102,3 +102,7 @@ void Icmp::SetPayload(int64_t time) {
   data_ = byte_data;
   Checksum();  
 }
+
+uint16_t Icmp::GetSeq() {
+  return seq_;
+}

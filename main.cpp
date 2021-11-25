@@ -22,12 +22,19 @@ addrinfo *HostServ(const char *hostname, const char *service, int family, int so
 void SigintHandler(int sig_num);
 
 const int kBuffSize = 1500;
+
 int sockfd; //number referencing open socket
 sockaddr *sa; //formated host address
 socklen_t salen;
 pid_t pid; // id of process(child) sending packets
 std::string canonname; // string name of the host's address
 struct sigaction old_action; // responsible to kill child process
+
+// data for statistics
+uint16_t last_seq = 0; // sentinel value, no packets received
+int received_packets = 0;
+double total_time = 0;
+double min_rtt = 1e8, max_rtt = -1.0; //sentinel values 
 
 int main(int argc, char **argv) {
   char *host;
@@ -111,7 +118,7 @@ void ReadLoop() {
     n = recvfrom(sockfd, recvbuf, kBuffSize, 0, sa, &salen);
     tvrecv = Clock::now();
     if (n < 0) {
-      if(errno == EINTR) {
+      if (errno == EINTR) {
         continue;
       } else
         perror("recvmsg error");
@@ -137,6 +144,8 @@ void Processing(char *buf, ssize_t len, Time tvrecv) {
   if (packet.Decode(byte_array) != 0)
     return;
   if (packet.CheckId(pid)) {
+    received_packets++;
+    last_seq = packet.GetSeq();
     std::vector<uint8_t> data((uint8_t*)(buf+len_hdr_ip+8),(uint8_t*)(buf+len));
     int i = 0;
     for (auto it = data.begin(); it != data.end(); it++, i++) {
@@ -144,9 +153,14 @@ void Processing(char *buf, ssize_t len, Time tvrecv) {
       t_epoch_send += term<<(8*i);
     }
     rtt = (t_epoch_recv-t_epoch_send)/1e6;
+    total_time += rtt;
+    if (rtt < min_rtt)
+      min_rtt = rtt;
+    if (rtt > max_rtt)
+      max_rtt = rtt;
     cout << len-len_hdr_ip << " bytes from " << canonname << ": "; 
     packet.ToString();
-    cout << std::setprecision(4) << std::fixed;
+    cout << std::setprecision(3) << std::fixed;
     cout << ", ttl=" << int(ip->ip_ttl) << ", time=" << rtt  << " ms" << endl;
     }
 }
@@ -154,6 +168,16 @@ void Processing(char *buf, ssize_t len, Time tvrecv) {
 void SigintHandler(int sig_num) {
   sigaction(SIGINT, &old_action, NULL);
   cout << endl << "--- " << canonname << " ping statistics ---" << endl;
+  cout << last_seq << " transmitted packets, " << received_packets << " received, ";
+  if (last_seq > 0) {
+    double lost_packet_percent = 100.0*(last_seq-received_packets)/last_seq;
+    cout << int(lost_packet_percent) << "%" << " packages lost, ";
+  }
+  cout << "time " << total_time << " ms" << endl;
+  if (received_packets > 0) {
+    cout << "rtt min/avg/max = " << min_rtt << "/" << total_time/received_packets;
+    cout << "/" << max_rtt << " ms" << endl;
+  }
   kill(pid,SIGKILL);
   kill(0,SIGINT);
 }
