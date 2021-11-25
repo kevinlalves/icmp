@@ -4,7 +4,7 @@ project(icmp VERSION 0.1.0)
 include(CTest)
 enable_testing()
 
-add_executable(icmp main.cpp icmp.cpp)
+add_executable(ping main.cpp icmp.cpp)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
