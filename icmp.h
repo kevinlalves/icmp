@@ -8,12 +8,12 @@
 #include <iostream>
 #include <vector>
 
-const int kIcmpEcho = 8;
-const int kIcmpReply = 0;
+const uint8_t kIcmpEcho = 8;
+const uint8_t kIcmpReply = 0;
 const int kMaxDatasize = 65535;
 const int kHeaderLength = 8;
 
-class Icmp{
+class Icmp {
   public:
     std::vector<uint8_t> Encode();
     int Decode(std::vector<uint8_t> &byte_array);
@@ -22,7 +22,7 @@ class Icmp{
     Icmp(uint8_t type, uint8_t code, uint16_t id, uint16_t seq);
     Icmp(uint8_t type, uint8_t code, uint16_t id, uint16_t seq, std::vector<uint8_t> &data);
     void IncrementSeq();
-    bool CheckId(pid_t pid);
+    bool CheckCompatibility(uint8_t type, uint8_t code, pid_t pid);
     void ToString();
     void SetPayload(int64_t time);
     uint16_t GetSeq();

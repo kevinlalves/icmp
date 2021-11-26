@@ -88,8 +88,8 @@ void Icmp::IncrementSeq() {
   Checksum();
 }
 
-bool Icmp::CheckId(pid_t pid) {
-  return (id_ == pid);
+bool Icmp::CheckCompatibility(uint8_t type, uint8_t code, pid_t pid) {
+  return (id_ == pid)&&(type_ == type)&&(code_ == code);
 }
 
 void Icmp::ToString() { 
