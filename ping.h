@@ -22,7 +22,7 @@ const int kBuffSize = 1500;
 class Ping {
   public:
     void StartClient(char *host, char *port);
-    void StartServer(char *host, char *port);
+    void StartServer(char *port);
     void ClientStatistics();
     void ServerStatistics();
     struct sigaction old_action; // responsible to kill child process
