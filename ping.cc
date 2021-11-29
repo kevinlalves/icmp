@@ -11,7 +11,7 @@ int Ping::HostServ(const char *hostname, const char *port, int family, int sockt
   if ((n = getaddrinfo(hostname, port, &hints, &res)) != 0)
     return 1;
 
-  sa= res->ai_addr;
+  sa = res->ai_addr;
   salen = res->ai_addrlen;
   canonname = res->ai_canonname;
   return 0;
@@ -25,37 +25,6 @@ void Ping::OpenSock() {
 
     int size = 60 * 1024;
     setsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, &size, sizeof(size));
-}
-
-void Ping::ClientSigHandler(int sig_num) {
-  std::cout << std::endl << "--- " << client.canonname;
-  std::cout << " ping statistics ---" << std::endl;
-  std::cout << client.last_seq << " transmitted packets, " << client.received_packets; 
-  std::cout << " received, ";
-  if (client.last_seq > 0) {
-    double lost_packet_percent = 100.0*(client.last_seq-client.received_packets)/client.last_seq;
-    std::cout << int(lost_packet_percent) << "%" << " packages lost, ";
-  }
-  std::cout << "time " << client.total_time << " ms" << std::endl;
-
-  if (client.received_packets > 0) {
-    std::cout << "rtt min/avg/max = " << client.min_rtt << "/";
-    std::cout << client.total_time/client.received_packets;
-    std::cout << "/" << client.max_rtt << " ms" << std::endl;
-  }
-
-  sigaction(SIGINT, &client.old_action, NULL);
-  kill(0, SIGINT);
-}
-
-
-void Ping::ServerSigHandler(int sig_num) {
-  std::cout << std::endl << "--- " << server.canonname;
-  std::cout << " server statistics ---" << std::endl;
-  std::cout << client.received_packets << " received\n";
-
-  sigaction(SIGINT, &server.old_action, NULL);
-  kill(0, SIGINT);
 }
 
 void Ping::Send(uint8_t type) {
@@ -138,11 +107,6 @@ void Ping::StartClient(char *host, char *port) {
   HostServ(host, port, 0, SOCK_RAW);
   OpenSock();
 
-  struct sigaction action;
-  memset(&action, 0, sizeof(action));
-  action.sa_handler = &ClientSigHandler;
-  sigaction(SIGINT, &action, &old_action);
-
   if (pid = fork()) {
     Read(kIcmpReply);
   } else {
@@ -155,14 +119,33 @@ void Ping::StartServer(char *host, char *port) {
   HostServ(host, port, 0, SOCK_RAW);
   OpenSock();
 
-  struct sigaction action;
-  memset(&action, 0, sizeof(action));
-  action.sa_handler = &ServerSigHandler;
-  sigaction(SIGINT, &action, &old_action);
-
   if (pid = fork()) {
     Read(kIcmpEcho);
   } else {
     Send(kIcmpReply);
   }
+}
+
+void Ping::ClientStatistics() {
+  std::cout << std::endl << "--- " << canonname;
+  std::cout << " ping statistics ---" << std::endl;
+  std::cout << last_seq << " transmitted packets, " << received_packets; 
+  std::cout << " received, ";
+  if (last_seq > 0) {
+    double lost_packet_percent = 100.0*(last_seq-received_packets)/last_seq;
+    std::cout << int(lost_packet_percent) << "%" << " packages lost, ";
+  }
+  std::cout << "time " << total_time << " ms" << std::endl;
+
+  if (received_packets > 0) {
+    std::cout << "rtt min/avg/max = " << min_rtt << "/";
+    std::cout << total_time/received_packets;
+    std::cout << "/" << max_rtt << " ms" << std::endl;
+  }  
+}
+
+void Ping::ServerStatistics() {
+  std::cout << std::endl << "--- " << canonname;
+  std::cout << " server statistics ---" << std::endl;
+  std::cout << received_packets << " received\n";
 }

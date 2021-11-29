@@ -23,8 +23,9 @@ class Ping {
   public:
     void StartClient(char *host, char *port);
     void StartServer(char *host, char *port);
-    static Ping client;
-    static Ping server;
+    void ClientStatistics();
+    void ServerStatistics();
+    struct sigaction old_action; // responsible to kill child process
   private:
     int sockfd; //number referencing open socket
     sockaddr *sa; //formated host address
@@ -33,7 +34,6 @@ class Ping {
     std::string canonname; // string name of the host's address
     Time tvrecv;
     char buf[kBuffSize];
-    struct sigaction old_action; // responsible to kill child process
 
     // data for statistics
     uint16_t last_seq = 0; // sentinel value, no packets received
@@ -44,8 +44,6 @@ class Ping {
     void OpenSock();
     int HostServ(const char *hostname, const char *port, int family, int socktype);
     void Processing(ssize_t len, uint8_t type);
-    static void ClientSigHandler(int sig_num);
-    static void ServerSigHandler(int sig_num);
     void Send(uint8_t type);
     void Read(uint8_t type);
 };
