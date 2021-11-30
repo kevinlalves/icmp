@@ -1,1 +1,1 @@
-The program uses raw sockets, so remember to run the program main as superuser.
+Uses a Tcp Client/Server to trade ICMP packets from a self-made Icmp class
