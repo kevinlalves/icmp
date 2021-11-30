@@ -32,7 +32,6 @@ class Tcp {
     char *port_;
     char *host_;
     sockaddr_in servaddr; //formated server address
-    std::string canonname; // string name of the host's address
     Time tvrecv;
     char buff[kBuffSize]; // buffer used in all communications
     void OpenSock(sa_family_t family, in_addr_t host_addr, uint16_t port);

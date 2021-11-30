@@ -26,6 +26,7 @@ class Icmp {
     void ToString();
     void SetPayload(int64_t time);
     uint16_t GetSeq();
+    int64_t DecodeData();
   private:
     uint8_t type_;
     uint8_t code_;

@@ -106,3 +106,15 @@ void Icmp::SetPayload(int64_t time) {
 uint16_t Icmp::GetSeq() {
   return seq_;
 }
+
+// Decodes only the payload, which is the time since epoch that the packet was sent
+int64_t Icmp::DecodeData() {
+  int64_t t_to_epoch = 0, term;
+  int i = 0;
+  for (auto it = data_.begin(); it != data_.end(); it++, i++)
+  {
+    term = *it;
+    t_to_epoch += term<<(8*i);
+  }
+  return t_to_epoch;
+}
