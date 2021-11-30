@@ -3,20 +3,20 @@
 #include "icmp.h"
 
 void Tcp::OpenSock(sa_family_t family, in_addr_t host_serv, uint16_t port) {
-    // socket create and verification
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd == -1) {
-        printf("Socket creation failed...\n");
-        exit(0);
-    }
-    else
-        printf("Socket successfully created..\n");
-    bzero(&servaddr, sizeof(servaddr));
+  // socket create and verification
+  sockfd = socket(AF_INET, SOCK_STREAM, 0);
+  if (sockfd == -1) {
+    std::cout << "Socket creation failed...\n";
+    exit(0);
+  } else {
+    std::cout << "Socket successfully created...\n";
+  }
+  bzero(&servaddr, sizeof(servaddr));
    
-    // assign IP, PORT
-    servaddr.sin_family = family;
-    servaddr.sin_addr.s_addr = host_serv;
-    servaddr.sin_port = htons(port);
+  // assign IP, PORT
+  servaddr.sin_family = family;
+  servaddr.sin_addr.s_addr = host_serv;
+  servaddr.sin_port = htons(port);
 }
 
 void Tcp::ServerSock() {
@@ -25,41 +25,41 @@ void Tcp::ServerSock() {
   sockaddr_in client_addr;
   socklen_t len = sizeof(client_addr);
   // Binding newly created socket to given IP and verification
-    if ((bind(sockfd, (sockaddr*)&servaddr, sizeof(servaddr))) != 0) {
-        printf("Socket bind failed...\n");
-        exit(0);
-    }
-    else
-        printf("Socket successfully binded..\n");
+  if ((bind(sockfd, (sockaddr*)&servaddr, sizeof(servaddr))) != 0) {
+    std::cout << "Socket bind failed...\n";
+    exit(0);
+  } else {
+    std::cout << "Socket successfully binded...\n";
+  }
    
-    // Now server is ready to listen and verification
-    if ((listen(sockfd, kMaxQueue)) != 0) {
-        printf("Listen failed...\n");
-        exit(0);
-    }
-    else
-        printf("Server listening..\n");
+  // Now server is ready to listen and verification
+  if ((listen(sockfd, kMaxQueue)) != 0) {
+    std::cout << "Listen failed...\n";
+    exit(0);
+  } else {
+    std::cout << "Server listening...\n";
+  }
    
-    // Accept the data packet from client and verification
-    connfd = accept(sockfd, (sockaddr*)&client_addr, &len);
-    if (connfd < 0) {
-        printf("Server accept failed...\n");
-        exit(0);
-    }
-    else
-        printf("Server accept the client...\n");
+  // Accept the data packet from client and verification
+  connfd = accept(sockfd, (sockaddr*)&client_addr, &len);
+  if (connfd < 0) {
+    std::cout << "Server accept failed...\n";
+    exit(0);
+  } else {
+    std::cout << "Server accept the client...\n";
+  }
 }
 
 void Tcp::ClientSock() {
   OpenSock(AF_INET, inet_addr(host_), std::stoi(port_));
   
   // connect the client socket to server socket
-    if (connect(sockfd, (sockaddr*)&servaddr, sizeof(servaddr)) != 0) {
-        printf("Connection with the server failed...\n");
-        exit(0);
-    }
-    else
-        printf("Connected to the server..\n");
+  if (connect(sockfd, (sockaddr*)&servaddr, sizeof(servaddr)) != 0) {
+    std::cout << "Connection with the server failed...\n";
+    exit(0);
+  } else {
+    std::cout << "Connected to the server...\n";
+  }
 }
 
 void Tcp::ClientChatting() {

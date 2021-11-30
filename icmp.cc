@@ -1,39 +1,10 @@
 #include "icmp.h"
 
-
 Icmp::Icmp() {
     type_ = kIcmpEcho;
     code_ = 0;
     id_ = getpid()&0xffff;
     seq_ = 0;
-    Checksum();
-}
-
-Icmp::Icmp(std::vector<uint8_t> &data) {
-    type_ = kIcmpReply;
-    code_ = 0;
-    id_ = getpid()&0xffff;
-    seq_ = 0;
-    data_ = data;
-    Checksum();
-}
-
-
-Icmp::Icmp(uint8_t type, uint8_t code, uint16_t id, uint16_t seq) {
-    type_ = type;
-    code_ = code;
-    id_ = id;
-    seq_ = seq;
-    Checksum();
-}
-
-
-Icmp::Icmp(uint8_t type, uint8_t code, uint16_t id, uint16_t seq, std::vector<uint8_t> &data) {
-    type_ = type;
-    code_ = code;
-    id_ = id;
-    seq_ = seq;
-    data_ = data;
     Checksum();
 }
 
@@ -86,10 +57,6 @@ int Icmp::Decode(std::vector<uint8_t> &byte_array) {
 void Icmp::IncrementSeq() {
   seq_++;
   Checksum();
-}
-
-bool Icmp::CheckCompatibility(uint8_t type, uint8_t code, pid_t pid) {
-  return (id_ == pid)&&(type_ == type)&&(code_ == code);
 }
 
 void Icmp::ToString() { 

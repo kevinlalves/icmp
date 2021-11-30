@@ -18,11 +18,7 @@ class Icmp {
     std::vector<uint8_t> Encode();
     int Decode(std::vector<uint8_t> &byte_array);
     Icmp();
-    Icmp(std::vector<uint8_t> &data);
-    Icmp(uint8_t type, uint8_t code, uint16_t id, uint16_t seq);
-    Icmp(uint8_t type, uint8_t code, uint16_t id, uint16_t seq, std::vector<uint8_t> &data);
     void IncrementSeq();
-    bool CheckCompatibility(uint8_t type, uint8_t code, pid_t pid);
     void ToString();
     void SetPayload(int64_t time);
     uint16_t GetSeq();
