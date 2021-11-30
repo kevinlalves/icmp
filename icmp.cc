@@ -1,39 +1,10 @@
 #include "icmp.h"
 
-
 Icmp::Icmp() {
     type_ = kIcmpEcho;
     code_ = 0;
     id_ = getpid()&0xffff;
     seq_ = 0;
-    Checksum();
-}
-
-Icmp::Icmp(std::vector<uint8_t> &data) {
-    type_ = kIcmpReply;
-    code_ = 0;
-    id_ = getpid()&0xffff;
-    seq_ = 0;
-    data_ = data;
-    Checksum();
-}
-
-
-Icmp::Icmp(uint8_t type, uint8_t code, uint16_t id, uint16_t seq) {
-    type_ = type;
-    code_ = code;
-    id_ = id;
-    seq_ = seq;
-    Checksum();
-}
-
-
-Icmp::Icmp(uint8_t type, uint8_t code, uint16_t id, uint16_t seq, std::vector<uint8_t> &data) {
-    type_ = type;
-    code_ = code;
-    id_ = id;
-    seq_ = seq;
-    data_ = data;
     Checksum();
 }
 
@@ -88,10 +59,6 @@ void Icmp::IncrementSeq() {
   Checksum();
 }
 
-bool Icmp::CheckCompatibility(uint8_t type, uint8_t code, pid_t pid) {
-  return (id_ == pid)&&(type_ == type)&&(code_ == code);
-}
-
 void Icmp::ToString() { 
   std::cout << "seq=" << seq_ << ", id=" << id_;
 }
@@ -105,4 +72,16 @@ void Icmp::SetPayload(int64_t time) {
 
 uint16_t Icmp::GetSeq() {
   return seq_;
+}
+
+// Decodes only the payload, which is the time since epoch that the packet was sent
+int64_t Icmp::DecodeData() {
+  int64_t t_to_epoch = 0, term;
+  int i = 0;
+  for (auto it = data_.begin(); it != data_.end(); it++, i++)
+  {
+    term = *it;
+    t_to_epoch += term<<(8*i);
+  }
+  return t_to_epoch;
 }
