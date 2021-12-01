@@ -8,20 +8,25 @@ Icmp::Icmp() {
     Checksum();
 }
 
+Icmp::Icmp(uint8_t type, uint8_t code, uint16_t id, uint16_t seq) {
+  type_ = type;
+  code_ = code;
+  id_ = id;
+  seq_ = seq;
+  Checksum();
+}
+
 void Icmp::Checksum() {
   cksum_ = 0;
-  auto byte_array = Encode();
+  std::vector<uint8_t> byte_array = Encode();
   uint32_t sum = 0;
-  int len = byte_array.size();
-  for (auto it = byte_array.begin(); len > 1; it++, len -= 2) {
-    sum += *it << 8;
-    it++;
-    sum += *it;
+  int i = 1;
+  for (auto it = byte_array.begin(); it != byte_array.end(); it++) {
+    sum += *it << (8*i);
+    i = (i+1)%2;
   }
-  if (len > 0)
-    sum += byte_array.back();
-  sum = (sum >> 16) + (sum & 0xffff);
-  sum += (sum >> 16);
+  while (sum>>16)
+    sum = (sum >> 16) + (sum & 0xffff);
   cksum_ = ~sum;
 }
 
@@ -68,10 +73,6 @@ void Icmp::SetPayload(int64_t time) {
   std::vector<uint8_t> byte_data((uint8_t*)&time,(uint8_t*)(&time)+len);
   data_ = byte_data;
   Checksum();  
-}
-
-uint16_t Icmp::GetSeq() {
-  return seq_;
 }
 
 // Decodes only the payload, which is the time since epoch that the packet was sent

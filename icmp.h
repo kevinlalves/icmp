@@ -18,10 +18,10 @@ class Icmp {
     std::vector<uint8_t> Encode();
     int Decode(std::vector<uint8_t> &byte_array);
     Icmp();
+    Icmp(uint8_t type, uint8_t code, uint16_t id, uint16_t seq);
     void IncrementSeq();
     void ToString();
     void SetPayload(int64_t time);
-    uint16_t GetSeq();
     int64_t DecodeData();
   private:
     uint8_t type_;
