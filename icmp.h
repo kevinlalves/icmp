@@ -3,6 +3,7 @@
 #ifndef __icmp_h_
 #define __icmp_h_
 
+#include <netinet/in.h>
 #include <unistd.h>
 
 #include <iostream>
