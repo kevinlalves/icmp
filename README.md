@@ -21,5 +21,11 @@ to start a client requesting connetion to hostname at the given port, this clien
 ## Example usage
 ![example usage](https://i.imgur.com/l19Z8zW.png)
 
+## Unit Testing
+The framework used was GoogleTest. Check the source file for tests at the test folder and run the test program in the /build/test folder with the command:
+```sh
+./icmp_test
+```
+
 ## Note
 As of now the program is not accepting the alias localhost, so use 127.0.0.1

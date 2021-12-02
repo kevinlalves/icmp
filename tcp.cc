@@ -96,9 +96,12 @@ void Tcp::ServerChatting() {
     read(connfd, buff, sizeof(buff)) ;
     // get structured packet from bytes
     std::vector<uint8_t> byte_array((uint8_t*)buff, (uint8_t*)(buff+sizeof(buff)));
-    packet.Decode(byte_array);
-    std::cout << "Packet: "; 
-    packet.ToString();
+    if (packet.Decode(byte_array) == 0) {
+      std::cout << "Packet: "; 
+      packet.ToString();
+    } else {
+      std::cout << "Corrupted Packet received";
+    }
     std::cout << std::endl;
     // send a reply in response to the original echo
     *(uint8_t*)buff = kIcmpReply;

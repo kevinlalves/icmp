@@ -47,7 +47,9 @@ std::vector<uint8_t> Icmp::Encode() {
   return byte_array;
 }
 
+// return -1 for failure at checksum validation, indicating corrupted packet 
 int Icmp::Decode(std::vector<uint8_t> &byte_array) {
+  uint16_t recv_cksum;
   if(byte_array.size() < kHeaderLength)
     return -1; //insufficient data for complete header
   if(byte_array.size() > kMaxDatasize)
@@ -55,13 +57,19 @@ int Icmp::Decode(std::vector<uint8_t> &byte_array) {
   auto it = byte_array.begin();
   type_ = *it++;
   code_ = *it++;
-  cksum_ = *it++ << 8;
-  cksum_ += *it++;
+  recv_cksum = *it++ << 8;
+  recv_cksum += *it++;
   id_ = *it++ << 8;
   id_ += *it++;
   seq_ = *it++ << 8;
   seq_ += *it++;
+  data_.clear();
   data_.insert(data_.begin(),it,byte_array.end());
+  Checksum();
+  if (cksum_ != recv_cksum) {
+    cksum_ = recv_cksum;
+    return -1;
+  }
   return 0;
 }
 
