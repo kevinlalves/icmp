@@ -22,16 +22,17 @@ class Icmp {
     Icmp(uint8_t type, uint8_t code, uint16_t id, uint16_t seq);
     void IncrementSeq();
     void ToString();
-    void SetPayload(int64_t time);
+    // Set bytes of data for addional general info (anything goes)
+    void SetPayload(std::vector<uint8_t> data);
+    // Decodes only the payload, interpreting the bytes as 64-bits integer
     int64_t DecodeData();
   private:
     uint8_t type_;
     uint8_t code_;
-    uint16_t cksum_;
     uint16_t id_;
     uint16_t seq_;
     std::vector<uint8_t> data_;
-    void Checksum();
+    uint16_t Checksum();
 };
 
 

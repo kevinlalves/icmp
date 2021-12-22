@@ -5,7 +5,6 @@ Icmp::Icmp() {
     code_ = 0;
     id_ = getpid()&0xffff;
     seq_ = 0;
-    Checksum();
 }
 
 Icmp::Icmp(uint8_t type, uint8_t code, uint16_t id, uint16_t seq) {
@@ -13,30 +12,31 @@ Icmp::Icmp(uint8_t type, uint8_t code, uint16_t id, uint16_t seq) {
   code_ = code;
   id_ = id;
   seq_ = seq;
-  Checksum();
 }
 
-void Icmp::Checksum() {
-  cksum_ = 0;
-  std::vector<uint8_t> byte_array = Encode();
-  uint32_t sum = 0;
+uint16_t Icmp::Checksum() {
+  uint16_t cksum;
+  uint32_t sum = type_ << 8;
+  sum += code_;
+  sum += id_;
+  sum += seq_;
   int i = 1;
-  for (auto it = byte_array.begin(); it != byte_array.end(); it++) {
+  for (auto it = data_.begin(); it != data_.end(); it++) {
     sum += *it << (8*i);
     i = (i+1)%2;
   }
   while (sum>>16)
     sum = (sum >> 16) + (sum & 0xffff);
-  cksum_ = ~sum;
+  cksum = ~sum;
+  return cksum;
 }
 
 std::vector<uint8_t> Icmp::Encode() {
   std::vector<uint8_t> byte_array;
+  uint16_t cksum = htons(Checksum());
   byte_array.push_back(type_);
   byte_array.push_back(code_);
-
-  uint16_t net_cksum = htons(cksum_);
-  byte_array.insert(byte_array.end(),(uint8_t*)&net_cksum, ((uint8_t*)&net_cksum)+2);
+  byte_array.insert(byte_array.end(),(uint8_t*)&cksum, ((uint8_t*)&cksum)+2);
 
   uint16_t net_id = htons(id_);
   byte_array.insert(byte_array.end(),(uint8_t*)&net_id, ((uint8_t*)&net_id)+2);
@@ -47,13 +47,12 @@ std::vector<uint8_t> Icmp::Encode() {
   return byte_array;
 }
 
-// return -1 for failure at checksum validation, indicating corrupted packet 
 int Icmp::Decode(std::vector<uint8_t> &byte_array) {
   uint16_t recv_cksum;
   if(byte_array.size() < kHeaderLength)
-    return -1; //insufficient data for complete header
+    return -2; 
   if(byte_array.size() > kMaxDatasize)
-    return -2; //exceeded maximum size for a icmp packet 
+    return -3; 
   auto it = byte_array.begin();
   type_ = *it++;
   code_ = *it++;
@@ -65,9 +64,7 @@ int Icmp::Decode(std::vector<uint8_t> &byte_array) {
   seq_ += *it++;
   data_.clear();
   data_.insert(data_.begin(),it,byte_array.end());
-  Checksum();
-  if (cksum_ != recv_cksum) {
-    cksum_ = recv_cksum;
+  if (Checksum() != recv_cksum) {
     return -1;
   }
   return 0;
@@ -75,34 +72,21 @@ int Icmp::Decode(std::vector<uint8_t> &byte_array) {
 
 void Icmp::IncrementSeq() {
   seq_++;
-  Checksum();
 }
 
 void Icmp::ToString() { 
   std::cout << "seq=" << seq_ << ", id=" << id_;
 }
 
-void Icmp::SetPayload(int64_t time) {
-  int len = sizeof(time);
-  std::vector<uint8_t> host_byte_data((uint8_t*)&time,(uint8_t*)(&time)+len);
-  std::vector<uint8_t> byte_data;
-  // checks if the host is little or big endian
-  if (*(uint32_t*)&time != htonl(*(uint32_t*)&time) ||
-      *((uint32_t*)&time+1) != htonl(*((uint32_t*)&time)+1)) { // little endian
-    byte_data.insert(byte_data.end(), host_byte_data.rbegin(), host_byte_data.rend());
-  } else { // big endian
-    byte_data = host_byte_data;
-  }
-  data_ = byte_data;
-  Checksum();  
+void Icmp::SetPayload(std::vector<uint8_t> data) {
+  data_.clear();
+  data_.insert(data_.end(), data.begin(),data.end());
 }
 
-// Decodes only the payload, which is the time since epoch that the packet was sent
 int64_t Icmp::DecodeData() {
   int64_t t_to_epoch = 0, term;
-  int i = data_.size()-1;
-  for (auto it = data_.begin(); it != data_.end(); it++, i--)
-  {
+  int i = 0;
+  for (auto it = data_.begin(); it != data_.end(); it++, i++) {
     term = *it;
     t_to_epoch += term<<(8*i);
   }

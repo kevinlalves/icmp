@@ -1,8 +1,14 @@
 ## Info
 Uses a Tcp Client/Server to trade ICMP packets from a self-made Icmp class.
 
+## Prerequisites
+Install Cmake version 3 or higher
+
 ## Usage
-Build the files with Cmake.
+In the project folder, run the command:
+```sh
+cmake --build build --config Debug --target all -j 10 --
+```
 
 ## Server
 In the build folder, execute the commmand:

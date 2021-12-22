@@ -27,13 +27,11 @@ class Tcp {
     void StartClient(char *host, char *port);
     void StartServer(char *port);
   private:
-    int sockfd; //number referencing open socket
-    int connfd;
+    int sockfd_; //number referencing open socket
+    int connfd_;
     char *port_;
     char *host_;
-    sockaddr_in servaddr; //formated server address
-    Time tvrecv;
-    char buff[kBuffSize]; // buffer used in all communications
+    sockaddr_in servaddr_; //formated server address
     void OpenSock(sa_family_t family, in_addr_t host_addr, uint16_t port);
     void ClientSock();
     void ServerSock();
